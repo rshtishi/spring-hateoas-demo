@@ -38,8 +38,8 @@ public class ProductRestController {
 		List<EntityModel<Product>> content = productRepository.findAll().stream()
 				.map(product ->{
 					Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
-					Link viewAll =linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel();
-					return EntityModel.of(product,selfLink,viewAll);
+					Link productsLink =linkTo(methodOn(ProductRestController.class).findAll()).withRel("productsLink");
+					return EntityModel.of(product,selfLink,productsLink);
 				})
 				.collect(Collectors.toList());
 		Link selfLink = linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel();
@@ -53,7 +53,7 @@ public class ProductRestController {
 		Optional<Product> optionalProduct = productRepository.findById(id);
 		if (optionalProduct.isPresent()) {
 			Link selfLink = linkTo(methodOn(ProductRestController.class).findById(id)).withSelfRel();
-			Link productsLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("products");
+			Link productsLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("productsLink");
 			return ResponseEntity
 					.ok(optionalProduct.map(product -> EntityModel.of(product, selfLink, productsLink)).get());
 		}
@@ -65,8 +65,8 @@ public class ProductRestController {
 		product = productRepository.save(product);
 		EntityModel<Product> productEntity = EntityModel.of(product);
 		Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
-		Link viewAllLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("viewAllLink");
-		productEntity.add(selfLink, viewAllLink);
+		Link productsLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("productsLink");
+		productEntity.add(selfLink, productsLink);
 		return ResponseEntity.ok(productEntity);
 	}
 
@@ -76,8 +76,8 @@ public class ProductRestController {
 		product = productRepository.save(product);
 		EntityModel<Product> productEntity = EntityModel.of(product);
 		Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
-		Link viewAllLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("viewAllLink");
-		productEntity.add(selfLink, viewAllLink);
+		Link productsLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("productsLink");
+		productEntity.add(selfLink, productsLink);
 		return ResponseEntity.ok(productEntity);
 	}
 
