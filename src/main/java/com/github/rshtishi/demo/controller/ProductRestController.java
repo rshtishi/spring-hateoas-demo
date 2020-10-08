@@ -36,7 +36,10 @@ public class ProductRestController {
 	public ResponseEntity<CollectionModel<EntityModel<Product>>> findAll() {
 
 		List<EntityModel<Product>> content = productRepository.findAll().parallelStream()
-				.map(product -> EntityModel.of(product)).collect(Collectors.toList());
+				.map(product -> EntityModel.of(product,
+						linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel(),
+						linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel()))
+				.collect(Collectors.toList());
 		Link selfLink = linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel();
 		CollectionModel<EntityModel<Product>> productCollectionModel = CollectionModel.of(content, selfLink);
 		return ResponseEntity.ok(productCollectionModel);
@@ -60,22 +63,26 @@ public class ProductRestController {
 		product = productRepository.save(product);
 		EntityModel<Product> productEntity = EntityModel.of(product);
 		Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
-		Link viewAll = linkTo(methodOn(ProductRestController.class).findAll()).withRel("viewAll");
-		productEntity.add(selfLink,viewAll);
+		Link viewAllLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("viewAllLink");
+		productEntity.add(selfLink, viewAllLink);
 		return ResponseEntity.ok(productEntity);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Product> update(@PathVariable("id") Long id, @RequestBody Product product) {
+	public ResponseEntity<EntityModel<Product>> update(@PathVariable("id") Long id, @RequestBody Product product) {
 		product.setId(id);
 		product = productRepository.save(product);
-		return ResponseEntity.ok(product);
+		EntityModel<Product> productEntity = EntityModel.of(product);
+		Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
+		Link viewAllLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("viewAllLink");
+		productEntity.add(selfLink, viewAllLink);
+		return ResponseEntity.ok(productEntity);
 	}
-	
+
 	@DeleteMapping("{id}")
-	public ResponseEntity<?> delete(@PathVariable("id") Long id){
+	public ResponseEntity<EntityModel<Object>> delete(@PathVariable("id") Long id) {
 		productRepository.deleteById(id);
-		return new ResponseEntity<>(HttpStatus.OK);
+		return ResponseEntity.noContent().build();
 	}
 
 }
