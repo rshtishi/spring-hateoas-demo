@@ -11,9 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,9 +49,33 @@ public class ProductRestController {
 		if (optionalProduct.isPresent()) {
 			Link selfLink = linkTo(methodOn(ProductRestController.class).findById(id)).withSelfRel();
 			Link productsLink = linkTo(methodOn(ProductRestController.class).findAll()).withRel("products");
-			return ResponseEntity.ok(optionalProduct.map(product -> EntityModel.of(product, selfLink,productsLink)).get());
+			return ResponseEntity
+					.ok(optionalProduct.map(product -> EntityModel.of(product, selfLink, productsLink)).get());
 		}
 		return ResponseEntity.notFound().build();
+	}
+
+	@PostMapping
+	public ResponseEntity<EntityModel<Product>> create(@RequestBody Product product) {
+		product = productRepository.save(product);
+		EntityModel<Product> productEntity = EntityModel.of(product);
+		Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
+		Link viewAll = linkTo(methodOn(ProductRestController.class).findAll()).withRel("viewAll");
+		productEntity.add(selfLink,viewAll);
+		return ResponseEntity.ok(productEntity);
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<Product> update(@PathVariable("id") Long id, @RequestBody Product product) {
+		product.setId(id);
+		product = productRepository.save(product);
+		return ResponseEntity.ok(product);
+	}
+	
+	@DeleteMapping("{id}")
+	public ResponseEntity<?> delete(@PathVariable("id") Long id){
+		productRepository.deleteById(id);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 }
