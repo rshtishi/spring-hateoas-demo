@@ -1,6 +1,6 @@
 # spring-hateoas-demo
 
-A practical guide that demostrate how to implement Spring HATEOAS in the simpliest way possible. 
+A practical guide that demonstrates how to implement Spring HATEOAS in the simplest way possible.
 
 ## Topics
 
