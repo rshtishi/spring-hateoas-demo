@@ -35,7 +35,7 @@ public class ProductRestController {
 	@GetMapping
 	public ResponseEntity<CollectionModel<EntityModel<Product>>> findAll() {
 		
-		List<EntityModel<Product>> content = productRepository.findAll().parallelStream()
+		List<EntityModel<Product>> content = productRepository.findAll().stream()
 				.map(product ->{
 					Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
 					Link viewAll =linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel();
