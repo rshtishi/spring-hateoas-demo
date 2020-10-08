@@ -34,11 +34,13 @@ public class ProductRestController {
 
 	@GetMapping
 	public ResponseEntity<CollectionModel<EntityModel<Product>>> findAll() {
-
+		
 		List<EntityModel<Product>> content = productRepository.findAll().parallelStream()
-				.map(product -> EntityModel.of(product,
-						linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel(),
-						linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel()))
+				.map(product ->{
+					Link selfLink = linkTo(methodOn(ProductRestController.class).findById(product.getId())).withSelfRel();
+					Link viewAll =linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel();
+					return EntityModel.of(product,selfLink,viewAll);
+				})
 				.collect(Collectors.toList());
 		Link selfLink = linkTo(methodOn(ProductRestController.class).findAll()).withSelfRel();
 		CollectionModel<EntityModel<Product>> productCollectionModel = CollectionModel.of(content, selfLink);
